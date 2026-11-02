@@ -1,4 +1,5 @@
 # CodeIgniter 4 Application Starter
+dalsi projekt uz zaponat nebudu
 
 ## What is CodeIgniter?
 
