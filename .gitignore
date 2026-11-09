@@ -66,6 +66,9 @@ Vagrantfile
 /writable/debugbar/*
 !/writable/debugbar/index.html
 
+# stažené GTFS zipy (cca 200 MB)
+/writable/gtfs/
+
 php_errors.log
 
 #-------------------------
