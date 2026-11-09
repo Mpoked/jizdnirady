@@ -1,7 +1,9 @@
 # Odjezdové tabule – společný plán
 
-Tým: **Marek** (data a import), **Tomáš** (veřejná část), **Matěj** (mapa a administrace).
-Každý má vlastní soubor s úkoly: [Marek.md](Marek.md), [Tomas.md](Tomas.md), [Matej.md](Matej.md).
+Tým: **Marek** (data, import, API), **Tomáš** (veřejná část, administrace, mapa).
+Každý má vlastní soubor s úkoly: [Marek.md](Marek.md), [Tomas.md](Tomas.md).
+
+> **Změna (9. 11. 2026):** Matěj na projektu nepracuje. Jeho úkoly převzali Marek a Tomáš (rozdělení je v tabulce níž a na konci jejich souborů). [Matej.md](Matej.md) zůstává jako podrobný popis těch úkolů, odkazy „Matej.md §…“ vedou tam.
 
 ## Zadání
 
@@ -70,10 +72,10 @@ Ion Auth přidá své tabulky (`users`, `groups`, `users_groups`, `login_attempt
 
 ## Rozdělení práce
 
-| | Marek: data a import | Tomáš: veřejná část | Matěj: mapa a administrace |
-|---|---|---|---|
-| Co dělá | příprava projektu (balíčky npm i composer), `Config/Jizdnirady.php`, migrace, modely, testovací seeder, import (`GtfsImport` + `php spark jr:import`), dotazy na odjezdy a graf, kostra `Routes.php` | layout, úvodní stránka s hledáním a stránkováním, odjezdová tabule, graf | Ion Auth, alerty, `BaseController`, filtr, přihlášení, administrace s QR, API pro mapu, mapa |
-| Jeho soubory | `Config/Jizdnirady.php`, `Database/**`, `Models/**`, `Libraries/GtfsImport.php`, `Commands/**`, `package.json`, `composer.json`, `.gitignore` | `Views/layout/**`, `Views/index.php`, `Views/tabule.php`, `Views/Pager/**`, `Config/Pager.php`, `Controllers/Main.php` (index, tabule) | `Controllers/{BaseController,Api,Login,Administrace}.php`, `Main::mapa()`, `Views/mapa.php`, `Views/login/**`, `Views/administrace/**`, `Filters/**`, `Config/{Alert,IonAuth,Filters}.php`, `Libraries/Alert.php` |
+| | Marek: data, import a API | Tomáš: veřejná část, administrace a mapa |
+|---|---|---|
+| Co dělá | příprava projektu (balíčky npm i composer), `Config/Jizdnirady.php`, migrace, modely, testovací seeder, import (`GtfsImport` + `php spark jr:import`), dotazy na odjezdy a graf, kostra `Routes.php`, **Ion Auth (konfigurace + tabulky), JSON API pro mapu** | layout, úvodní stránka s hledáním a stránkováním, odjezdová tabule, graf, **alerty, `BaseController`, filtr, přihlášení, administrace s QR, mapa** |
+| Jeho soubory | `Config/Jizdnirady.php`, `Config/IonAuth.php`, `Database/**`, `Models/**`, `Libraries/GtfsImport.php`, `Commands/**`, `Controllers/Api.php`, `package.json`, `composer.json`, `.gitignore` | `Views/layout/**`, `Views/index.php`, `Views/tabule.php`, `Views/mapa.php`, `Views/login/**`, `Views/administrace/**`, `Views/Pager/**`, `Config/{Pager,Alert,Filters}.php`, `Controllers/{BaseController,Main,Login,Administrace}.php`, `Filters/**`, `Libraries/Alert.php` |
 
 **Pravidlo: do cizích souborů nesahej.** Platí to i pro soubory projektu, které v tabulce nejsou u nikoho (konfigurace CI4, `Home.php`, `welcome_message.php` …). Když potřebuješ změnu v cizím souboru, napiš to tomu, komu patří. Protože děláme všichni v jedné větvi, je tohle pravidlo to jediné, co nás chrání před konflikty.
 
@@ -81,11 +83,11 @@ Ion Auth přidá své tabulky (`users`, `groups`, `users_groups`, `login_attempt
 
 - **`app/Config/Routes.php`**: Marek založí kostru se třemi bloky. Každý píše jen do svého bloku.
   ```php
-  // ===== Tomáš – veřejná část =====
-  // ===== Matěj – mapa a API =====
-  // ===== Matěj – administrace =====
+  // ===== Tomáš – veřejná část a mapa =====
+  // ===== Marek – API =====
+  // ===== Tomáš – administrace =====
   ```
-- **`app/Controllers/Main.php`**: založí Tomáš. Matěj přidává jen metodu `mapa()` úplně na konec třídy.
+- **`app/Controllers/Main.php`**: celý patří Tomášovi (včetně `mapa()`).
 - **`package.json`, `composer.json`**: instaluje **jen Marek**, a to všechno hned na začátku. Když někdo potřebuje další balíček, řekne Markovi.
 
 ### Smlouvy mezi částmi (na tohle se ostatní spoléhají)
@@ -108,7 +110,7 @@ Ion Auth přidá své tabulky (`users`, `groups`, `users_groups`, `login_attempt
 - `Odjezd::tydenniPocty(int $zastavkaId): array`: vždy 7 položek Po–Ne aktuálního týdne, např. `['2026-11-02' => 412, '2026-11-03' => 398, …]`
 - `Nastaveni::hodnota(string $nazev): ?string`
 
-**BaseController (Matěj):**
+**BaseController (Tomáš):**
 - `$this->data`: pole pro view, už obsahuje `alert` (objekt s `message` a `class`; když je `message` prázdné, nic se nezobrazí)
 - `$this->session`, `$this->ionAuth`
 - helpery `form`, `url`, `text`
@@ -153,7 +155,7 @@ public string $defaultLocale = 'cs';
 
 Po každém pullu: `composer install` (`vendor/` je v `.gitignore`). `node_modules/` je v gitu, ten přijde s pullem.
 
-Databáze: v phpMyAdminu vytvořit `jizdnirady` (`utf8mb4_czech_ci`), pak `php spark migrate`. Pak:
+Databáze: v phpMyAdminu vytvořit `jizdnirady` (`utf8mb4_czech_ci`), pak `php spark migrate` a naimportovat `vendor/benedmunds/codeigniter-ion-auth/sql/ion_auth.sql` (tabulky pro přihlášení, účet `admin@admin.com` / `password`, heslo hned změnit). Pak:
 - během práce stačí `php spark db:seed TestovaciData` (rychlé testovací údaje),
 - ostrá data **jednou** přes `php spark jr:import` (stáhne ~200 MB a trvá desítky minut). Všichni stahují ze stejné složky `2026-11-01`, takže budou mít stejná data.
 
@@ -168,14 +170,14 @@ Databáze: v phpMyAdminu vytvořit `jizdnirady` (`utf8mb4_czech_ci`), pak `php s
 
 ## Harmonogram
 
-| fáze | Marek | Tomáš | Matěj |
-|---|---|---|---|
-| **1. Základ** (nejdřív, ostatní čekají) | příprava projektu, balíčky, `Config/Jizdnirady`, migrace, modely se smlouvami, seeder, kostra rout → **push** | layout (DB nepotřebuje) → **push co nejdřív** | Ion Auth SQL, `Config/Alert`, `Libraries/Alert`, `BaseController` → **push co nejdřív** |
-| **2. Hlavní práce** | import vlaků, pak autobusů, dotazy `nejblizsi` a `tydenniPocty` | úvodní stránka (hledání + stránkování), tabule | přihlášení, filtr, administrace, QR |
-| **3. Dodělávky** | výkon dotazů, záloha zipů mimo git | graf, vzhled tabule, prázdné stavy | API a mapa |
-| **4. Spolu** | každý jednou `php spark jr:import`, testování podle sekce Ověření, nasazení (ref. 12) | | |
+| fáze | Marek | Tomáš |
+|---|---|---|
+| **1. Základ** (nejdřív, Tomáš čeká) | příprava projektu, balíčky, `Config/Jizdnirady`, `Config/IonAuth`, migrace, modely se smlouvami, seeder, kostra rout → **push** | ✅ layout; `Config/Alert`, `Libraries/Alert`, `BaseController` |
+| **2. Hlavní práce** | import vlaků, pak autobusů, dotazy `nejblizsi` a `tydenniPocty` | úvodní stránka (hledání + stránkování), tabule, graf; pak přihlášení, filtr, administrace, QR |
+| **3. Dodělávky** | API pro mapu, výkon dotazů, záloha zipů mimo git | mapa, vzhled, prázdné stavy |
+| **4. Spolu** | každý jednou `php spark jr:import`, testování podle sekce Ověření, nasazení (ref. 12) | |
 
-Do konce fáze 2 pracují Tomáš a Matěj na datech ze seederu, ostrý import nepotřebují.
+Do konce fáze 2 pracuje Tomáš na datech ze seederu, ostrý import nepotřebuje.
 
 ## Ověření (na konci společně)
 

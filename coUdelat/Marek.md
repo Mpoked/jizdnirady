@@ -1,6 +1,6 @@
-# Marek – data a import
+# Marek – data, import a API
 
-Tvoje část: aby v databázi byla data a aby šlo zjistit nejbližší odjezdy a počty na graf. Na tobě stojí ostatní, takže **fáze 1 má přednost**.
+Tvoje část: aby v databázi byla data a aby šlo zjistit nejbližší odjezdy a počty na graf. Na tobě stojí ostatní, takže **fáze 1 má přednost**. Od 9. 11. navíc část Matějových úkolů (Ion Auth a API), viz [konec souboru](#převzato-od-matěje).
 
 Společné věci (smlouvy, git, nastavení `.env`) jsou v [00-plan.md](00-plan.md).
 
@@ -17,7 +17,7 @@ Materiály: ref. 01 (instalace), 03 a 04 (modely, join), 09 (vlastní konfigurac
   ```bash
   npm i chart.js leaflet leaflet.markercluster qr-creator @fortawesome/fontawesome-free
   ```
-- [ ] Ion Auth přes composer (pro Matěje), stejně jako v `../administrace/composer.json`. Do `composer.json` přidat:
+- [ ] Ion Auth přes composer, stejně jako v `../administrace/composer.json`. Do `composer.json` přidat:
   ```json
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -71,17 +71,21 @@ Hned napsat metody ze smlouvy v `00-plan.md`, i kdyby uvnitř zatím byl jednodu
 - [ ] `Nastaveni::hodnota($nazev)`
 
 ### 1.5 Testovací data – `php spark make:seeder TestovaciData`
-Aby Tomáš a Matěj mohli pracovat, než napíšeš import.
+Aby Tomáš mohl pracovat, než napíšeš import.
 - [ ] 6–8 zastávek kolem Uherského Hradiště (bus i vlak, skutečné souřadnice, např. `Uherské Hradiště` vlak 49.0697, 17.4644)
 - [ ] 3–4 linky, ~30 spojů, odjezdy rozprostřené přes celý den, aspoň jeden spoj přes půlnoc (`cas` > 86 400)
 - [ ] `provoz` **počítat od dnešního data** (pondělí aktuálního týdne + 14 dní), aby seeder fungoval kdykoli. Některé služby jen v pracovní dny, ať je v grafu vidět víkend.
 - [ ] `nastaveni` vyplnit (`data_ze_dne`, `okno_od`, `okno_do`, `importovano` = teď, počty)
 
 ### 1.6 Kostra rout – `app/Config/Routes.php`
-Tři komentované bloky podle `00-plan.md` (Tomáš / Matěj – mapa a API / Matěj – administrace). Rovnou do nich napiš routy z plánu, ať je každý jen upravuje.
+Tři komentované bloky podle `00-plan.md` (Tomáš – veřejná část a mapa / Marek – API / Tomáš – administrace). Rovnou do nich napiš routy z plánu (`/` a `tabule/…` → `Main`, `mapa` → `Main::mapa`, API, administrace z Matej.md §2.2), ať je každý jen upravuje.
 
-### 1.7 Push a dát vědět
-- [ ] Commit (jen svoje soubory) a push do `master` a **napsat Tomášovi a Matějovi**, ať pullnou a spustí `composer install`, `php spark migrate`, `php spark db:seed TestovaciData`.
+### 1.7 Ion Auth (převzato od Matěje, Matej.md fáze 1)
+- [ ] `app/Config/IonAuth.php` (ref. 10 §2.2): `class IonAuth extends \IonAuth\Config\IonAuth`, `$identity = 'email'`, `$siteTitle`
+- [ ] Ověřit, že `ion_auth.sql` jde naimportovat do DB `jizdnirady` (krok je v `00-plan.md` → Nastavení)
+
+### 1.8 Push a dát vědět
+- [ ] Commit (jen svoje soubory) a push do `master` a **napsat Tomášovi**, ať pullne a spustí `composer install`, `php spark migrate`, import `ion_auth.sql`, `php spark db:seed TestovaciData`.
 
 ---
 
@@ -118,10 +122,10 @@ Postup knihovny pro každý feed (nejdřív `vlak`, je menší, pak `bus`; čít
 8. **spoj** zapsat až na konci (až znáš `cil`).
 
 Na konci importu:
-- [ ] Do `nastaveni` zapsat `data_ze_dne`, `okno_od`, `okno_do`, `importovano` (kdy import doběhl), `pocet_zastavek`, `pocet_spoju`, `pocet_odjezdu`. Matěj je ukazuje v administraci a `COUNT(*)` nad miliony řádků by byl pomalý.
+- [ ] Do `nastaveni` zapsat `data_ze_dne`, `okno_od`, `okno_do`, `importovano` (kdy import doběhl), `pocet_zastavek`, `pocet_spoju`, `pocet_odjezdu`. Tomáš je ukazuje v administraci a `COUNT(*)` nad miliony řádků by byl pomalý.
 - [ ] Když import spadne, vypsat chybu přes `CLI::error()` a zalogovat přes `log_message('error', …)`. Po opravě se pustí znovu, tabulky se na začátku stejně vyprázdní.
 
-### 2.2 Dotazy pro Tomáše a Matěje (model `Odjezd`, ref. 03/04)
+### 2.2 Dotazy pro Tomáše (model `Odjezd`, ref. 03/04)
 
 **`nejblizsi($zastavkaId, $pocet)`**: D = dnes, S = sekundy od půlnoci teď. Kvůli spojům přes půlnoc se berou tři dny:
 ```
@@ -157,7 +161,22 @@ Hodnoty vkládej přes `$this->db->escape()`. V PHP pak dopočítej `cas` ve for
 ## Co předáváš
 | komu | co | kdy |
 |---|---|---|
-| oba | balíčky, migrace, modely se smlouvami, seeder, kostra rout | fáze 1 |
+| Tomáš | balíčky, migrace, modely se smlouvami, seeder, kostra rout, `Config/IonAuth` | fáze 1 |
 | Tomáš | funkční `nejblizsi` a `tydenniPocty` na seederu | začátek fáze 2 |
-| Matěj | `Zastavka::vyrez`, `nastaveni` s počty | fáze 2 |
-| oba | ostrá data | konec fáze 2 |
+| Tomáš | `nastaveni` s počty (administrace) | fáze 2 |
+| Tomáš | JSON API `api/zastavky`, `api/odjezdy/…` (mapa) | fáze 3 |
+| Tomáš | ostrá data | konec fáze 2 |
+
+---
+
+## Převzato od Matěje
+
+Podrobné zadání je v [Matej.md](Matej.md), tady jen co a kdy.
+
+- [ ] **Fáze 1:** Ion Auth, viz výš bod 1.7
+- [ ] **Fáze 3: controller `Api`** (Matej.md §3.1):
+  - routy ve svém bloku „Marek – API“: `api/zastavky` → `Api::zastavky`, `api/odjezdy/(:segment)/(:segment)` → `Api::odjezdy/$1/$2`
+  - `zastavky()`: GET `s, w, n, e` na `float`, bez nich vrátit chybu jako JSON (status 400), jinak `vyrez(…, $config->mapaLimit)` → `setJSON` s poli `typ, slug, nazev, lat, lon`
+  - `odjezdy($typ, $slug)`: `najdi()` (není → 404 JSON), `nejblizsi($id, $config->pocetOdjezduMapa)` → `{ zastavka, url: site_url('tabule/…'), odjezdy }`
+  - napsat Tomášovi, až to pojede, mapa na tom stojí
+- [ ] Otestovat: `/api/zastavky?s=49.0&w=17.4&n=49.1&e=17.5` vrací JSON, bez parametrů chybu, ne výjimku; neexistující slug v `api/odjezdy` vrací 404 JSON

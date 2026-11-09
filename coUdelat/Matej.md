@@ -1,5 +1,11 @@
 # Matěj – mapa a administrace
 
+> **Matěj na projektu nepracuje (od 9. 11. 2026).** Úkoly z tohoto souboru převzali:
+> - **Marek:** `Config/IonAuth.php` + tabulky Ion Auth (fáze 1), controller `Api` (§3.1)
+> - **Tomáš:** všechno ostatní, tedy alerty a `BaseController` (fáze 1), filtr, přihlášení, administrace a QR (fáze 2), mapa (§3.2)
+>
+> Soubor zůstává jako podrobný popis úkolů. Kde se níž píše „Tomáš“ nebo „tvůj blok“, platí rozdělení výše a bloky rout podle `00-plan.md`.
+
 Tvoje část: přihlášení a administrace s QR kódy a mapa zastávek s odjezdy (včetně JSON API, které mapa volá).
 
 Společné věci (smlouvy, git, nastavení `.env`) jsou v [00-plan.md](00-plan.md).
