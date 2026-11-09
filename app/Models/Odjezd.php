@@ -67,7 +67,12 @@ class Odjezd extends Model
         $v = $this->db->escape($vcera);
         $z = $this->db->escape($zitra);
 
-        $radky = $this->select('odjezd.cas, provoz.datum, linka.typ, linka.cislo AS linka, spoj.cislo AS cisloSpoje, spoj.cil, linka.dopravce')
+        // poradi = sekundy od dnešní půlnoci (včerejší noční spoje i zítřek v jedné řadě).
+        // DISTINCT: některé linky jsou v datech ve více verzích se stejnými časy,
+        // stejný odjezd (linka, číslo, směr, čas) se tak ukáže jen jednou.
+        $radky = $this->distinct()
+            ->select("DATEDIFF(provoz.datum, $d) * 86400 + odjezd.cas AS poradi", false)
+            ->select('linka.typ, linka.cislo AS linka, spoj.cislo AS cisloSpoje, spoj.cil, linka.dopravce')
             ->join('spoj', 'spoj.id = odjezd.spoj_id', 'inner')
             ->join('linka', 'linka.id = spoj.linka_id', 'inner')
             ->join('provoz', 'provoz.sluzba_id = spoj.sluzba_id', 'inner')
@@ -76,16 +81,16 @@ class Odjezd extends Model
             ->where("((provoz.datum = $d AND odjezd.cas >= $s)"
                 . " OR (provoz.datum = $v AND odjezd.cas >= " . ($s + 86400) . ')'
                 . " OR provoz.datum = $z)", null, false)
-            ->orderBy("DATEDIFF(provoz.datum, $d) * 86400 + odjezd.cas", '', false)
+            ->orderBy('poradi')
             ->findAll($pocet);
 
         $odjezdy = [];
+        [$rok, $mesic, $den] = array_map('intval', explode('-', $dnes));
 
         foreach ($radky as $r) {
-            // čas 25:10:00 znamená 1:10 následujícího dne (mktime si s tím poradí i při změně času)
-            [$rok, $mesic, $den] = array_map('intval', explode('-', $r->datum));
-            $cas = (int) $r->cas;
-            $kdy = mktime(intdiv($cas, 3600), intdiv($cas % 3600, 60), $cas % 60, $mesic, $den, $rok);
+            // 25:10 od dnešní půlnoci je zítra 1:10 (mktime si s tím poradí i při změně času)
+            $p   = (int) $r->poradi;
+            $kdy = mktime(intdiv($p, 3600), intdiv($p % 3600, 60), $p % 60, $mesic, $den, $rok);
 
             $odjezdy[] = (object) [
                 'cas'        => date('H:i', $kdy),
@@ -116,8 +121,10 @@ class Odjezd extends Model
             $pocty[date('Y-m-d', strtotime("+$i day", $pondeli))] = 0;
         }
 
-        $radky = $this->select('provoz.datum, COUNT(*) AS pocet')
+        // stejný odjezd z více verzí linky se počítá jednou (stejně jako na tabuli)
+        $radky = $this->select('provoz.datum, COUNT(DISTINCT odjezd.cas, linka.cislo, spoj.cislo, spoj.cil) AS pocet', false)
             ->join('spoj', 'spoj.id = odjezd.spoj_id', 'inner')
+            ->join('linka', 'linka.id = spoj.linka_id', 'inner')
             ->join('provoz', 'provoz.sluzba_id = spoj.sluzba_id', 'inner')
             ->where('odjezd.zastavka_id', $zastavkaId)
             ->where('provoz.datum >=', array_key_first($pocty))
