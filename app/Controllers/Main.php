@@ -12,9 +12,6 @@ use Psr\Log\LoggerInterface;
 
 class Main extends BaseController
 {
-    // Obálka pro view; alert do ní dává BaseController (Matěj)
-    protected array $data = [];
-
     private Zastavka $zastavka;
     private Odjezd $odjezd;
     private \Config\Jizdnirady $config;
@@ -26,11 +23,6 @@ class Main extends BaseController
         $this->zastavka = new Zastavka();
         $this->odjezd   = new Odjezd();
         $this->config   = config('Jizdnirady');
-
-        // Dokud BaseController neplní alert, nastavíme prázdný
-        $this->data['alert'] ??= (object) ['message' => '', 'class' => ''];
-
-        helper(['form', 'url']);
     }
 
     /**

@@ -10,6 +10,9 @@
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('/') ?>"><i class="fa-solid fa-clock"></i> Odjezdy</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('mapa') ?>"><i class="fa-solid fa-map-location-dot"></i> Mapa</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?= base_url('administrace') ?>"><i class="fa-solid fa-gear"></i> Administrace</a></li>
+                <?php if (! empty($prihlasen)) : ?>
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url('administrace/odhlaseni') ?>"><i class="fa-solid fa-right-from-bracket"></i> Odhlásit</a></li>
+                <?php endif ?>
             </ul>
         </div>
     </div>
