@@ -69,7 +69,7 @@
             form_checkbox(['name' => 'z[]', 'value' => $hodnota, 'id' => $id, 'class' => 'form-check-input']),
             $ikona,
             '<label for="' . $id . '">' . esc($z->nazev) . '</label>',
-            anchor('administrace/qr/tisk?' . http_build_query(['z' => [$hodnota]]), '<i class="fa-solid fa-print"></i> Tisk', ['class' => 'btn btn-sm btn-outline-secondary', 'target' => '_blank'])
+            anchor('administrace/qr/tisk?' . http_build_query(['z' => [$hodnota]]), '<i class="fa-solid fa-print"></i> Tisk', ['class' => 'btn btn-sm btn-outline-primary', 'target' => '_blank'])
         );
     }
 

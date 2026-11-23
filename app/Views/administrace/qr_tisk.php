@@ -17,7 +17,7 @@
 <div class="no-print d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h1 class="mb-0"><i class="fa-solid fa-print"></i> Tisk QR kódů</h1>
     <div>
-        <a href="<?= base_url('administrace/qr') ?>" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Zpět</a>
+        <a href="<?= base_url('administrace/qr') ?>" class="btn btn-outline-white"><i class="fa-solid fa-arrow-left"></i> Zpět</a>
         <?php if (! empty($zastavky)) : ?>
             <button type="button" class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Vytisknout</button>
         <?php endif ?>
