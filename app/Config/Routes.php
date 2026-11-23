@@ -24,5 +24,7 @@ $routes->group('administrace', ['filter' => 'auth'], static function ($routes) {
     $routes->get('/', 'Administrace::index');
     $routes->get('qr', 'Administrace::qr');
     $routes->get('qr/tisk', 'Administrace::qrTisk');
+    $routes->get('heslo', 'Administrace::heslo');
+    $routes->post('heslo', 'Administrace::zmenitHeslo', ['filter' => 'csrf']); // filtr skupiny (auth) zůstává, csrf se přidá
     $routes->get('odhlaseni', 'Login::logout');
 });

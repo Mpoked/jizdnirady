@@ -69,13 +69,22 @@ class Zastavka extends Model
 
     /**
      * Zastávky v obdélníku mapy (jih, západ, sever, východ), nejvýš $limit kusů.
+     * Když je jich ve výřezu víc, vrátí ty nejblíž středu. Bez řazení by se vzaly
+     * podle indexu od jihu a severní část výřezu by zůstala prázdná (Praha na zoomu 13).
      */
     public function vyrez(float $s, float $w, float $n, float $e, int $limit): array
     {
+        $stredLat = ($s + $n) / 2;
+        $stredLon = ($w + $e) / 2;
+
+        // druhá mocnina vzdálenosti od středu; stupeň délky je v ČR kratší než stupeň šířky (cos 50° ≈ 0,64)
+        $vzdalenost = "POW(lat - {$stredLat}, 2) + POW((lon - {$stredLon}) * 0.64, 2)";
+
         return $this->where('lat >=', $s)
             ->where('lat <=', $n)
             ->where('lon >=', $w)
             ->where('lon <=', $e)
+            ->orderBy($vzdalenost, '', false)
             ->findAll($limit);
     }
 }

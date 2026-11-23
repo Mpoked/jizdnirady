@@ -21,8 +21,9 @@
             Jízdní řád ze dne 1. 11. 2026, platný do 13. 12. 2026. Statický, bez zpoždění.
             Autor dat upozorňuje, že nemusí být dost přesná pro plánování cest.
             Data: CIS JŘ (Ministerstvo dopravy) přes
-            <a href="https://data.jr.ggu.cz/" class="link-secondary">data.jr.ggu.cz</a>,
-            mapa © přispěvatelé <a href="https://www.openstreetmap.org/copyright" class="link-secondary">OpenStreetMap</a>.
+            <a href="https://data.jr.ggu.cz/" class="link-body-emphasis">data.jr.ggu.cz</a>,
+            mapa © přispěvatelé <a href="https://www.openstreetmap.org/copyright" class="link-body-emphasis">OpenStreetMap</a>.
+            <!-- link-secondary nejde: v tématu Zephyr je secondary bílá -->
         </div>
     </footer>
 

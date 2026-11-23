@@ -11,6 +11,14 @@ $cislo = static fn ($c) => $c !== null ? number_format((int) $c, 0, ',', ' ') : 
     <span class="text-body-secondary"><i class="fa-solid fa-user"></i> <?= esc($uzivatel->email ?? '') ?></span>
 </div>
 
+<?php if ($vychoziHeslo) : ?>
+    <div class="alert alert-danger">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Účet má pořád výchozí heslo <code>password</code> z <code>ion_auth.sql</code>.
+        <a href="<?= base_url('administrace/heslo') ?>" class="alert-link">Změňte ho</a>.
+    </div>
+<?php endif ?>
+
 <?php if ($neplatne) : ?>
     <div class="alert alert-warning">
         <i class="fa-solid fa-triangle-exclamation"></i>
@@ -55,5 +63,8 @@ $cislo = static fn ($c) => $c !== null ? number_format((int) $c, 0, ',', ' ') : 
 
 <a href="<?= base_url('administrace/qr') ?>" class="btn btn-primary btn-lg">
     <i class="fa-solid fa-qrcode"></i> QR kódy zastávek
+</a>
+<a href="<?= base_url('administrace/heslo') ?>" class="btn btn-outline-primary btn-lg">
+    <i class="fa-solid fa-key"></i> Změnit heslo
 </a>
 <?= $this->endSection() ?>

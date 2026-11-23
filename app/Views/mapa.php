@@ -89,11 +89,15 @@
     mapa.addControl(new NajdiMe());
     mapa.on('locationerror', () => ukazHlasku('Polohu se nepodařilo zjistit.'));
 
-    // Zastávky jen ve výřezu mapy (celkem jich je ~50 tisíc)
+    // Značky, které už jsou na mapě, podle klíče typ/slug
+    const znacky = new Map();
+
+    // Zastávky jen ve výřezu mapy (celkem jich je ~40 tisíc)
     let probihajici = null;
     async function nactiZastavky() {
         if (mapa.getZoom() < MIN_ZOOM) {
             cluster.clearLayers();
+            znacky.clear();
             ukazHlasku('Přibližte mapu, aby se zobrazily zastávky.');
             return;
         }
@@ -110,12 +114,32 @@
             if (!odpoved.ok) throw new Error(odpoved.status);
             const zastavky = await odpoved.json();
 
-            cluster.clearLayers();
-            cluster.addLayers(zastavky.map((z) =>
-                L.marker([z.lat, z.lon], { icon: ikony[z.typ] ?? ikony.bus, title: z.nazev })
-                    .bindPopup('Načítám…', { minWidth: 260 })
-                    .on('click', (e) => nactiOdjezdy(e.target, z))
-            ));
+            // Jen rozdíl proti tomu, co už na mapě je. Kdyby se mazalo všechno (clearLayers),
+            // zavřel by se popup: otevření popupu posune mapu, přijde moveend a značka by zmizela.
+            const nove = new Set();
+            const pridat = [];
+            for (const z of zastavky) {
+                const klic = z.typ + '/' + z.slug;
+                nove.add(klic);
+                if (!znacky.has(klic)) {
+                    const znacka = L.marker([z.lat, z.lon], { icon: ikony[z.typ] ?? ikony.bus, title: z.nazev })
+                        .bindPopup('Načítám…', { minWidth: 260 })
+                        .on('click', (e) => nactiOdjezdy(e.target, z));
+                    znacky.set(klic, znacka);
+                    pridat.push(znacka);
+                }
+            }
+
+            // Značky mimo nový výřez pryč, ale ne tu, která má otevřený popup
+            const odebrat = [];
+            for (const [klic, znacka] of znacky) {
+                if (!nove.has(klic) && !znacka.isPopupOpen()) {
+                    odebrat.push(znacka);
+                    znacky.delete(klic);
+                }
+            }
+            cluster.removeLayers(odebrat);
+            cluster.addLayers(pridat);
         } catch (chyba) {
             if (chyba.name !== 'AbortError') ukazHlasku('Zastávky se nepodařilo načíst.');
         }

@@ -35,12 +35,16 @@ class Administrace extends BaseController
             $hodnoty[$nazev] = $this->nastaveni->hodnota($nazev);
         }
 
+        $uzivatel = $this->ionAuth->user()->row();
+
         $this->data += [
             'title'    => 'Administrace',
             'n'        => (object) $hodnoty,
-            'uzivatel' => $this->ionAuth->user()->row(),
+            'uzivatel' => $uzivatel,
             // Po konci období jsou všechny tabule prázdné
             'neplatne' => $hodnoty['okno_do'] !== null && date('Y-m-d') > $hodnoty['okno_do'],
+            // Pořád výchozí heslo z ion_auth.sql → upozornit, ať si ho změní
+            'vychoziHeslo' => $this->ionAuth->verifyPassword('password', (string) $uzivatel->password),
         ];
 
         return view('administrace/index', $this->data);
@@ -93,5 +97,49 @@ class Administrace extends BaseController
         ];
 
         return view('administrace/qr_tisk', $this->data);
+    }
+
+    /**
+     * Formulář pro změnu hesla přihlášeného uživatele
+     */
+    public function heslo()
+    {
+        $this->data += [
+            'title'    => 'Změna hesla',
+            'minDelka' => config('IonAuth')->minPasswordLength,
+        ];
+
+        return view('administrace/heslo', $this->data);
+    }
+
+    /**
+     * Zpracování formuláře pro změnu hesla (Ion Auth changePassword)
+     */
+    public function zmenitHeslo()
+    {
+        $stare     = (string) $this->request->getPost('stare');
+        $nove      = (string) $this->request->getPost('nove');
+        $potvrzeni = (string) $this->request->getPost('potvrzeni');
+
+        // Ion Auth délku hesla sám nekontroluje (viz minPasswordLength v jeho configu), proto tady
+        if (mb_strlen($nove) < config('IonAuth')->minPasswordLength || $nove !== $potvrzeni) {
+            $alert = $this->alert->makeMessage(false, 'heslonove');
+            $this->session->setFlashdata('alert', $alert);
+
+            return redirect()->to('administrace/heslo');
+        }
+
+        // changePassword() ověří současné heslo a uloží nové (zahashované)
+        $uzivatel = $this->ionAuth->user()->row();
+        $zmeneno  = $this->ionAuth->changePassword($uzivatel->email, $stare, $nove);
+
+        $alert = $this->alert->makeMessage($zmeneno, 'heslo');
+        $this->session->setFlashdata('alert', $alert);
+
+        if ($zmeneno) {
+            return redirect()->to('administrace');
+        }
+
+        return redirect()->to('administrace/heslo');
     }
 }
