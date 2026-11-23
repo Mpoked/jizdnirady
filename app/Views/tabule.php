@@ -92,7 +92,7 @@
     <a href="<?= site_url('mapa') . '?' . http_build_query(['lat' => $zastavka->lat, 'lon' => $zastavka->lon]) ?>" class="btn btn-outline-primary">
         <i class="fa-solid fa-map-location-dot"></i> Zobrazit na mapě
     </a>
-    <a href="<?= base_url('/') ?>" class="btn btn-outline-secondary">
+    <a href="<?= base_url('/') ?>" class="btn btn-outline-white">
         <i class="fa-solid fa-magnifying-glass"></i> Jiná zastávka
     </a>
 </p>
