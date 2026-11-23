@@ -86,4 +86,28 @@ class Main extends BaseController
 
         return view('tabule', $this->data);
     }
+
+    /**
+     * Mapa zastávek; zastávky a odjezdy si stránka načítá z API (Api.php)
+     * Volitelně ?lat=…&lon=… (odkaz z tabule) - mapa se na ně vycentruje.
+     */
+    public function mapa()
+    {
+        $lat = $this->request->getGet('lat');
+        $lon = $this->request->getGet('lon');
+
+        // Střed jen když jsou to platné souřadnice
+        $stred = null;
+        if (is_numeric($lat) && is_numeric($lon) && abs((float) $lat) <= 90 && abs((float) $lon) <= 180) {
+            $stred = [(float) $lat, (float) $lon];
+        }
+
+        $this->data += [
+            'title'       => 'Mapa zastávek',
+            'stred'       => $stred,
+            'mapaMinZoom' => $this->config->mapaMinZoom,
+        ];
+
+        return view('mapa', $this->data);
+    }
 }
