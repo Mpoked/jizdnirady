@@ -175,7 +175,7 @@ Databáze: v phpMyAdminu vytvořit `jizdnirady` (`utf8mb4_czech_ci`), pak `php s
 | **1. Základ** (nejdřív, Tomáš čeká) | příprava projektu, balíčky, `Config/Jizdnirady`, `Config/IonAuth`, migrace, modely se smlouvami, seeder, kostra rout → **push** | ✅ layout; `Config/Alert`, `Libraries/Alert`, `BaseController` |
 | **2. Hlavní práce** | import vlaků, pak autobusů, dotazy `nejblizsi` a `tydenniPocty` | úvodní stránka (hledání + stránkování), tabule, graf; pak přihlášení, filtr, administrace, QR |
 | **3. Dodělávky** | API pro mapu, výkon dotazů, záloha zipů mimo git | mapa, vzhled, prázdné stavy |
-| **4. Spolu** | každý jednou `php spark jr:import`, testování podle sekce Ověření, nasazení (ref. 12) | |
+| **4. Spolu** | každý jednou `php spark jr:import`, testování podle sekce Ověření, nasazení (ref. 12, postup v [nasazeni-debian.md](nasazeni-debian.md)) | |
 
 Do konce fáze 2 pracuje Tomáš na datech ze seederu, ostrý import nepotřebuje.
 
